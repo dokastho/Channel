@@ -14,10 +14,34 @@ private:
     std::condition_variable cv;
 
 public:
-    T get();
+    T get()
+    {
+        l.lock();
+        while (items.empty())
+        {
+            cv.wait(l);
+        }
 
-    void add(T item);
+        T item = items.front();
+        items.pop();
+        l.unlock();
+        return item;
+    }
 
-    size_t size();
+    void add(T item)
+    {
+        l.lock();
+        items.push(item);
+        cv.notify_one();
+        l.unlock();
+    }
+
+    size_t size()
+    {
+        l.lock();
+        size_t s = items.size();
+        l.unlock();
+        return s;
+    }
 };
 #endif
