@@ -10,13 +10,13 @@ class Channel
 {
 private:
     std::queue<T> items;
-    std::unique_lock<std::mutex> l;
+    std::mutex __l;
     std::condition_variable cv;
 
 public:
     T get()
     {
-        l.lock();
+        std::unique_lock<std::mutex> l(__l);
         while (items.empty())
         {
             cv.wait(l);
@@ -30,7 +30,7 @@ public:
 
     void add(T item)
     {
-        l.lock();
+        std::unique_lock<std::mutex> l(__l);
         items.push(item);
         cv.notify_one();
         l.unlock();
@@ -38,10 +38,18 @@ public:
 
     size_t size()
     {
-        l.lock();
+        std::unique_lock<std::mutex> l(__l);
         size_t s = items.size();
         l.unlock();
         return s;
+    }
+
+    bool empty()
+    {
+        std::unique_lock<std::mutex> l(__l);
+        bool b = items.empty();
+        l.unlock();
+        return b;
     }
 };
 #endif
