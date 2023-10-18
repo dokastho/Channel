@@ -12,14 +12,30 @@ private:
     std::queue<T> items;
     std::mutex __l;
     std::condition_variable cv;
+    bool alive;
 
 public:
+    Channel()
+    {
+        alive = true;
+    }
+
+    ~Channel()
+    {
+        alive = false;
+        cv.notify_all();
+    }
+
     T get()
     {
         std::unique_lock<std::mutex> l(__l);
         while (items.empty())
         {
             cv.wait(l);
+            if (!alive)
+            {
+                std::exit(0);
+            }
         }
 
         T item = items.front();
@@ -70,29 +86,46 @@ class priority_channel
         }
     };
 
-    std::priority_queue<priority_item, std::vector<T>, priority_comp> items;
+    std::priority_queue<priority_item, std::vector<priority_item>, priority_comp> items;
     std::mutex __l;
     std::condition_variable cv;
+    bool alive;
 
 public:
+    priority_channel()
+    {
+        alive = true;
+    }
+
+    ~priority_channel()
+    {
+        alive = false;
+        cv.notify_all();
+    }
+
     T get()
     {
         std::unique_lock<std::mutex> l(__l);
         while (items.empty())
         {
             cv.wait(l);
+            if (!alive)
+            {
+                std::exit(0);
+            }
         }
 
-        T item = items.front();
+        priority_item item = items.top();
         items.pop();
         l.unlock();
-        return item;
+        return item.datum;
     }
 
     void add(T item, uint8_t priority)
     {
         std::unique_lock<std::mutex> l(__l);
-        items.push(priority_item{item, priority});
+        priority_item p{priority, item};
+        items.push(p);
         cv.notify_one();
         l.unlock();
     }
