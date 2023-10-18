@@ -70,7 +70,7 @@ class priority_channel
         }
     };
 
-    std::priority_queue<priority_item, std::vector, priority_comp> items;
+    std::priority_queue<priority_item, std::vector<T>, priority_comp> items;
     std::mutex __l;
     std::condition_variable cv;
 
