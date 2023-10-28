@@ -26,6 +26,17 @@ public:
         cv.notify_all();
     }
 
+    Channel &operator=(const Channel &other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        this->items = other.items;
+        return *this;
+    }
+
     T get()
     {
         std::unique_lock<std::mutex> l(__l);
@@ -34,6 +45,9 @@ public:
             cv.wait(l);
             if (!alive)
             {
+                #ifndef CHANNEL_EXIT
+                throw std::runtime_error("non-empty channel terminated.")
+                #endif
                 std::exit(0);
             }
         }
@@ -103,6 +117,17 @@ public:
         cv.notify_all();
     }
 
+    priority_channel &operator=(const priority_channel &other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        this->items = other.items;
+        return *this;
+    }
+
     T get()
     {
         std::unique_lock<std::mutex> l(__l);
@@ -111,6 +136,9 @@ public:
             cv.wait(l);
             if (!alive)
             {
+                #ifndef CHANNEL_EXIT
+                throw std::runtime_error("non-empty channel terminated.")
+                #endif
                 std::exit(0);
             }
         }
