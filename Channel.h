@@ -46,7 +46,7 @@ public:
             if (!alive)
             {
                 #ifndef CHANNEL_EXIT
-                throw std::runtime_error("non-empty channel terminated.")
+                throw std::runtime_error("non-empty channel terminated.");
                 #endif
                 std::exit(0);
             }
@@ -137,7 +137,7 @@ public:
             if (!alive)
             {
                 #ifndef CHANNEL_EXIT
-                throw std::runtime_error("non-empty channel terminated.")
+                throw std::runtime_error("non-empty channel terminated.");
                 #endif
                 std::exit(0);
             }
